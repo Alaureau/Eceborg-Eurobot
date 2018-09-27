@@ -1,4 +1,4 @@
-# PPERobotECE
+# Eceborg Eurobot 2019
 This is a student project on robotics.
 
 Hello there !
