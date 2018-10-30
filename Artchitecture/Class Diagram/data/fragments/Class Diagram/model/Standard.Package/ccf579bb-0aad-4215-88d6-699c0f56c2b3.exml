@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="WheelBase" version="4">
+  <OBJECT>
+    <ID name="WheelBase" mc="Standard.Package" uid="ccf579bb-0aad-4215-88d6-699c0f56c2b3"/>
+    <PID name="class diagram" mc="Standard.Package" uid="32578ba5-24d8-4dce-a635-367187576604"/>
+    <ATTRIBUTES>
+      <ATT name="IsInstantiable">false</ATT>
+      <ATT name="IsAbstract">false</ATT>
+      <ATT name="IsLeaf">false</ATT>
+      <ATT name="IsRoot">false</ATT>
+      <ATT name="Visibility">Public</ATT>
+      <ATT name="Name"><![CDATA[WheelBase]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <COMP relation="OwnedElement">
+        <COMPID name="Motor" mc="Standard.Class" uid="2a664376-5f59-4f51-b403-2fae924dbd57"/>
+        <COMPID name="MotionController" mc="Standard.Class" uid="09137fdc-d60a-460d-aa0e-b5561b4215e9"/>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

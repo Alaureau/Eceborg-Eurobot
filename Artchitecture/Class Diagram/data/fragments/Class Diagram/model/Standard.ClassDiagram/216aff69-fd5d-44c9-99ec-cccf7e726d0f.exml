@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="class diagram Class diagram" version="4">
+  <OBJECT>
+    <ID name="class diagram Class diagram" mc="Standard.ClassDiagram" uid="216aff69-fd5d-44c9-99ec-cccf7e726d0f"/>
+    <PID name="class diagram" mc="Standard.Package" uid="32578ba5-24d8-4dce-a635-367187576604"/>
+    <ATTRIBUTES>
+      <ATT name="UiDataVersion">9</ATT>
+      <ATT name="UiData"><![CDATA[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]]></ATT>
+      <ATT name="Name"><![CDATA[class diagram Class diagram]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <LINK relation="Represented">
+        <ID name="WheelBase" mc="Standard.Package" uid="ccf579bb-0aad-4215-88d6-699c0f56c2b3"/>
+        <ID name="Motor" mc="Standard.Class" uid="2a664376-5f59-4f51-b403-2fae924dbd57"/>
+        <ID name="MotionController" mc="Standard.Class" uid="09137fdc-d60a-460d-aa0e-b5561b4215e9"/>
+      </LINK>
+      <COMP relation="Descriptor">
+        <OBJECT>
+          <ID name="" mc="Infrastructure.Note" uid="0e190323-65b7-4765-8f63-4df80fca915c"/>
+          <ATTRIBUTES>
+            <ATT name="Content"></ATT>
+            <ATT name="MimeType"><![CDATA[text/plain]]></ATT>
+            <ATT name="Name"></ATT>
+            <ATT name="status">1970354901745664</ATT>
+          </ATTRIBUTES>
+          <DEPENDENCIES>
+            <LINK relation="Model">
+              <FOREIGNID name="description" mc="Infrastructure.NoteType" uid="00000000-0000-3e81-0000-000000000000"/>
+            </LINK>
+          </DEPENDENCIES>
+        </OBJECT>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>
