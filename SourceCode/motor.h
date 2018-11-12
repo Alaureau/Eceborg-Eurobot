@@ -1,7 +1,4 @@
-#ifdef IAM_QBOUGE
 
-#ifndef MOTOR_H_INCLUDED
-#define MOTOR_H_INCLUDED
 
 #include "mbed.h"
 #include "motor.cpp"
@@ -95,5 +92,3 @@ protected:
     float last_sPwm_;
 };
 
-#endif // #ifndef MOTOR_H_INCLUDED
-#endif // #ifdef IAM_QBOUGE

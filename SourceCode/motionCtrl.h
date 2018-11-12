@@ -2,6 +2,7 @@
 #include "rtos.h"
 #include "QEI.h"
 #include "motor.h"
+
 #define ENC_RADIUS          20.0                    // one encoder radius
 #define ENC_PERIMETER       (2*M_PI*ENC_RADIUS)     // one encoder perimeter
 #define ENC_POS_RADIUS      87                      // distance from one encoder to the center of the robot
@@ -19,7 +20,7 @@
 #define perim_wheel 128.74
 #define reso_encoder 2050.0
 #define coef_corr 1
-#define entraxe 328.0
+#define entraxe 310.0
 #define MAX_DECEL 1000
 #define MAX_V 500
 #define MAX_A 600
@@ -50,11 +51,15 @@ public:
 	void asserv();
 	void update_Pos();
 	void Compute_PID();
-	void update_Motor();
+	float update_Motor(float sPwm, float last_sPwm_);
 	void fetchEncodersValue();
-int32_t enc_l_val,enc_l_last,enc_r_val,enc_r_last;
+	float  Dist_Consigne();
+	float  Ang_Consigne();
+	int32_t enc_l_val,enc_l_last,enc_r_val,enc_r_last;
 	float x_goal,y_goal;
-	Motor Motor_l, Motor_r;
+	//Motor Motor_l, Motor_r;
+	float last_Pwm_l,last_Pwm_r;
+	float sPwm_L,sPwm_R;
 	float Dist_last,angl_goal;
 	float Dist;
 	float Cap,Cap_last;

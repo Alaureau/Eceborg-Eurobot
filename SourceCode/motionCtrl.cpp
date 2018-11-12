@@ -2,6 +2,15 @@
 #include "motionCtrl.h"
 #include "config.h"
 #include "QEI.h"
+#include <stdlib.h> 
+#include <stdio.h> 
+DigitalOut MOTOR_L_DIR_1(D10);//MOTEUR 1 roue gauche
+DigitalOut MOTOR_L_DIR_2(D8);
+PwmOut MOTOR_L_PWM(D9);
+
+DigitalOut MOTOR_R_DIR_1(D7);
+DigitalOut MOTOR_R_DIR_2(D4);
+PwmOut MOTOR_R_PWM(D5);//MOTEUR roue droite
 
 
 motionCtrl::motionCtrl(float m_Posx,float m_Posy,float m_Angle,float m_x_goal,float m_y_goal,float m_angle_goal) 
@@ -10,15 +19,32 @@ motionCtrl::motionCtrl(float m_Posx,float m_Posy,float m_Angle,float m_x_goal,fl
     //Motor_l(MOTOR_L_PWM, MOTOR_L_DIR, MOTOR_DIR_LEFT_FORWARD),
    // Motor_r(MOTOR_R_PWM, MOTOR_R_DIR, MOTOR_DIR_RIGHT_FORWARD),
     {
+        MOTOR_R_PWM=0.3;
+        MOTOR_L_PWM=0.3;
+
+        ///avancer
+        MOTOR_R_DIR_2= 0;
+        MOTOR_R_DIR_1= 1;
+        MOTOR_L_DIR_2= 1;
+        MOTOR_L_DIR_1= 0;
         //this->enc_l = QEI(ENC_L_DATA1,ENC_L_DATA2,NC,200);
         //this->enc_r = QEI(ENC_R_DATA1,ENC_R_DATA2,NC,200);
     	enc_l_val=0;
         enc_r_val=0;
         //enc_l_last=0;
         //enc_r_last=0;
+        sPwm_L=0.0;
+        sPwm_R=0.0;
+        last_Pwm_l=0.0;
+        last_Pwm_r=0.0;
+        Dist_last=0.0;
+        angl_goal=0.0;
+        Dist=0.0;
+        Cap=0.0;
+        Cap_last=0.0;
         x_goal=m_x_goal;
         y_goal=m_y_goal;
-        angla_goal=m_angle_goal;
+        angl_goal=m_angle_goal;
     	Posx=m_Posx;
     	Posy=m_Posy;
     	Angle=m_Angle;
@@ -67,8 +93,9 @@ float recalib(float Cap)
     if(Cap<(-M_PI))Cap+=2*M_PI;
     return Cap;
 }
-float Dist_Consigne()
+float  motionCtrl::Dist_Consigne()
 {
+    float Dist;
     float VRobot=(Dist_last-Dist)/ASSERV_DELAY;
     float Dfrein=(VRobot*VRobot)/(2*MAX_DECEL);
     float Vconsigne=0;
@@ -86,7 +113,7 @@ float Dist_Consigne()
     }
     return Vconsigne;
 }
-float Ang_Consigne()
+float  motionCtrl::Ang_Consigne()
 {
     float VRobot=(Cap_last-Cap)/ASSERV_DELAY;
     float Dfrein=(VRobot*VRobot)/(2*MAX_DECEL_A);
@@ -105,11 +132,51 @@ float Ang_Consigne()
     }
     return Vconsigne;
 }
+float constrain(float val, float min, float max)
+{
+    if(val<min)return min;
+    else if(val >max)return max;
+    else return val;
+}
+float  motionCtrl::update_Motor(float sPwm, float last_sPwm_)
+{
+    if (abs(sPwm) < PWM_IS_ALMOST_ZERO)
+    {
+        sPwm = 0;
+        last_sPwm_ = 0;
+    }
+    else
+    {
+        float current = last_sPwm_;
+
+        sPwm = constrain(sPwm, -1, 1);
+
+        // step the raw value
+        if (abs(sPwm - current) > PWM_STEP)
+        {
+            if (sPwm > current)
+                sPwm = current + PWM_STEP;
+            else
+                sPwm = current - PWM_STEP;
+        }
+
+        last_sPwm_ = sPwm;
+
+        // map for applying the pwm
+        //sPwm = SIGN(sPwm) * map(abs(sPwm), 0, 1, PWM_MIN, 1);
+
+        // cap for boundary checking
+        sPwm = constrain(sPwm, -PWM_MAX, PWM_MAX);
+    }
+
+    return sPwm;
+}
+
 void motionCtrl::Compute_PID()
 {
     float Xerr=x_goal-Posx;
     float Yerr=y_goal-Posy;
-    float Aerr=angla_goal-Angle;
+    float Aerr=angl_goal-Angle;
     Dist=sqrt((Xerr*Xerr)+(Yerr*Yerr));
     float Cap=atan2(Yerr,Xerr)-Angle;
     Cap=recalib(Cap);
@@ -135,15 +202,19 @@ void motionCtrl::Compute_PID()
 
         // if the magnitude of one of the two is > 1, divide by the bigest of these
         // two two magnitudes (in order to keep the scale)
-        if ((ABS(mot_l_val) > 1) || (ABS(mot_r_val) > 1))
+        if ((abs(mot_l_val) > 1) || (abs(mot_r_val) > 1))
         {
-            m = MAX(ABS(mot_l_val), ABS(mot_r_val));
+            float m = max(abs(mot_l_val), abs(mot_r_val));
             mot_l_val /= m;
             mot_r_val /= m;
         }
 
-        Motor_l.setSPwm(mot_l_val);
-        Motor_r.setSPwm(mot_r_val);
+        float Pwm_L=update_Motor(mot_l_val,last_Pwm_l);
+        float Pwm_R=update_Motor(mot_r_val,last_Pwm_r);
+       sPwm_L=Pwm_L;
+        sPwm_R=Pwm_R;
+       MOTOR_L_PWM=Pwm_L;
+       MOTOR_R_PWM=Pwm_R;
 
 
 }
@@ -152,4 +223,5 @@ void motionCtrl::Compute_PID()
 
  	this->fetchEncodersValue();
  	this->update_Pos();
+    this->Compute_PID();
  }
