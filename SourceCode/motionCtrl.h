@@ -2,7 +2,7 @@
 #include "rtos.h"
 #include "QEI.h"
 #include "motor.h"
-
+#include "PID.h"
 #define ENC_RADIUS          20.0                    // one encoder radius
 #define ENC_PERIMETER       (2*M_PI*ENC_RADIUS)     // one encoder perimeter
 #define ENC_POS_RADIUS      87                      // distance from one encoder to the center of the robot
@@ -29,7 +29,7 @@
 #define MAX_A_A 3
 
 #define PID_DIST_MAX_OUPUT  0.8
-#define PID_ANGLE_MAX_OUPUT 0.6
+#define PID_ANGLE_MAX_OUPUT 1 
 
 // PID settings
 
@@ -51,12 +51,24 @@ public:
 	void asserv();
 	void update_Pos();
 	void Compute_PID();
-	float update_Motor(float sPwm, float last_sPwm_);
+	float update_Motor(float sPwm, char cote);
 	void fetchEncodersValue();
 	float  Dist_Consigne();
 	float  Ang_Consigne();
+	 void pidDistSetGoal(float goal);
+    void pidAngleSetGoal(float goal);
 	int32_t enc_l_val,enc_l_last,enc_r_val,enc_r_last;
-	float x_goal,y_goal;
+	
+
+	PID pid_dist_, pid_angle_;
+       // tmp variable used as a working var
+                                            //   use this instead of the raw value from the QEI objects.
+                                            //   unit: encoder ticks
+    float pid_dist_goal_, pid_angle_goal_;  // units: mm and rad
+    float pid_dist_out_, pid_angle_out_;
+
+
+float x_goal,y_goal;
 	//Motor Motor_l, Motor_r;
 	float last_Pwm_l,last_Pwm_r;
 	float sPwm_L,sPwm_R;
@@ -67,8 +79,8 @@ public:
 	float Speed;
 	Timer timer;
 	Ticker *asserv_ticker_;
-	QEI enc_l= QEI(ENC_L_DATA1,ENC_L_DATA2,NC,200);
-	QEI enc_r= QEI(ENC_R_DATA1,ENC_R_DATA2,NC,200);
+	QEI enc_l;
+	QEI enc_r;
 	//Motor Motor_l, Motor_r;
 	
 
