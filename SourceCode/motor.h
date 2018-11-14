@@ -2,7 +2,7 @@
 
 #include "mbed.h"
 #include "motor.cpp"
-#define PWM_MIN                 0.08                        // pwm value at which the robot starts moving
+#define PWM_MIN                 0.3                        // pwm value at which the robot starts moving
 #define PWM_MAX                 1.00                        // should always be 1. Maximum PWM should be set by MC
 
 // Pwm goes from 0 to 1 over a X sec timespan.

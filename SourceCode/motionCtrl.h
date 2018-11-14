@@ -3,6 +3,12 @@
 #include "QEI.h"
 #include "motor.h"
 #include "PID.h"
+#include <stdlib.h> 
+#include <algorithm> 
+#include <stdio.h> 
+#include <vector>
+#include "Task.h"
+#include "SharpSensor.h"
 #define ENC_RADIUS          20.0                    // one encoder radius
 #define ENC_PERIMETER       (2*M_PI*ENC_RADIUS)     // one encoder perimeter
 #define ENC_POS_RADIUS      87                      // distance from one encoder to the center of the robot
@@ -21,8 +27,8 @@
 #define reso_encoder 2050.0
 #define coef_corr 1
 #define entraxe 310.0
-#define MAX_DECEL 1000
-#define MAX_V 500
+#define MAX_DECEL 2000
+#define MAX_V 250
 #define MAX_A 600
 #define MAX_DECEL_A 4
 #define MAX_V_A 1
@@ -30,7 +36,8 @@
 
 #define PID_DIST_MAX_OUPUT  0.8
 #define PID_ANGLE_MAX_OUPUT 1 
-
+#define MC_TARGET_TOLERANCE_DIST 5
+#define MC_TARGET_TOLERANCE_ANGLE 0.1
 // PID settings
 
 #define PID_DIST_P          6.0
@@ -47,19 +54,25 @@
 
 class motionCtrl {
 public:
-	motionCtrl(float m_Posx,float m_Posy,float m_Angle,float m_x_goal,float m_y_goal,float m_angle_goal);
+	//motionCtrl(float m_Posx,float m_Posy,float m_Angle,float m_x_goal,float m_y_goal,float m_angle_goal,Task *m_Liste)
+	motionCtrl(float m_Posx,float m_Posy,float m_Angle,std::vector<Task> Liste);
 	void asserv();
 	void update_Pos();
+	void MAJTask();
 	void Compute_PID();
 	float update_Motor(float sPwm, char cote);
 	void fetchEncodersValue();
 	float  Dist_Consigne();
+	void updateTask();
+	void DefineDistCap();
 	float  Ang_Consigne();
 	 void pidDistSetGoal(float goal);
     void pidAngleSetGoal(float goal);
 	int32_t enc_l_val,enc_l_last,enc_r_val,enc_r_last;
-	
 
+	SharpSensor s1,s2;
+	
+	std::vector<Task> Liste;
 	PID pid_dist_, pid_angle_;
        // tmp variable used as a working var
                                             //   use this instead of the raw value from the QEI objects.
@@ -69,6 +82,7 @@ public:
 
 
 float x_goal,y_goal;
+bool isFinished;
 	//Motor Motor_l, Motor_r;
 	float last_Pwm_l,last_Pwm_r;
 	float sPwm_L,sPwm_R;
