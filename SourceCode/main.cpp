@@ -14,10 +14,10 @@ int main(){
 	std::vector<Task> v;
 	Task s1("MOVE_POS",500,0.0,0.0);
 	Task s2("MOVE_ANG",0.0,0.0,M_PI/2);
-	Task s3("MOVE_ANG",0.0,0.0,-M_PI/2);
+	//Task s3("MOVE_ANG",0.0,0.0,-M_PI/2);
 	v.push_back(s1);
 	v.push_back(s2);
-	v.push_back(s3);
+	//v.push_back(s3);
 	//Task Table[2]= {new Task("MOVE_POS",500,0,0),new Task("MOVE_POS",0,0,0)};
 	/*Task t1,t2;
 	t1=new Task("MOVE_POS",500,0,0);

@@ -5,14 +5,14 @@
 
 #include "utils.h"
 
-DigitalOut MOTOR_L_DIR_1(D10);//MOTEUR 1 roue gauche
-DigitalOut MOTOR_L_DIR_2(D8);
-PwmOut MOTOR_L_PWM(D9);
+DigitalOut MOTOR_R_DIR_2(D10);//MOTEUR 1 roue gauche
+DigitalOut MOTOR_R_DIR_1(D8);
+PwmOut MOTOR_R_PWM(D9);
 
 
-DigitalOut MOTOR_R_DIR_1(D7);
-DigitalOut MOTOR_R_DIR_2(D4);
-PwmOut MOTOR_R_PWM(D5);//MOTEUR roue droite
+DigitalOut MOTOR_L_DIR_2(D7);
+DigitalOut MOTOR_L_DIR_1(D4);
+PwmOut MOTOR_L_PWM(D5);//MOTEUR roue droite
 
 #define SHARP1 A5
 #define SHARP2 A4
@@ -374,10 +374,10 @@ void motionCtrl::Compute_PID()
        //sPwm_R=Dist;
         //s1.update();
         //s2.update();
-       MOTOR_L_PWM=update_Motor(mot_l_val,'l');
-       MOTOR_R_PWM=update_Motor(mot_r_val,'r');
-      sPwm_L=MOTOR_L_PWM;
-       sPwm_R=MOTOR_R_PWM;
+       MOTOR_L_PWM=update_Motor(mot_l_val,'l')/1.5;
+       MOTOR_R_PWM=update_Motor(mot_r_val,'r')/1.5;
+      sPwm_L=mot_l_val;
+       sPwm_R=mot_r_val;
 
 }
 void motionCtrl::MAJTask()
@@ -406,7 +406,7 @@ void motionCtrl::MAJTask()
 }
  void motionCtrl::asserv()
  {
-    //bool ret=false;
+    bool ret=false;
     //Posx++;
  	this->fetchEncodersValue();
  	this->update_Pos();
