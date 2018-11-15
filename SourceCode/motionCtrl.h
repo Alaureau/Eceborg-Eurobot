@@ -36,7 +36,7 @@
 
 #define PID_DIST_MAX_OUPUT  0.8
 #define PID_ANGLE_MAX_OUPUT 1 
-#define MC_TARGET_TOLERANCE_DIST 5
+#define MC_TARGET_TOLERANCE_DIST 30
 #define MC_TARGET_TOLERANCE_ANGLE 0.1
 // PID settings
 
@@ -85,7 +85,7 @@ float x_goal,y_goal;
 bool isFinished;
 	//Motor Motor_l, Motor_r;
 	float last_Pwm_l,last_Pwm_r;
-	float sPwm_L,sPwm_R;
+	float sPwm_L, sPwm_R;
 	float Dist_last,angl_goal;
 	float Dist;
 	float Cap,Cap_last;

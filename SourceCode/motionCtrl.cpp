@@ -374,15 +374,15 @@ void motionCtrl::Compute_PID()
        //sPwm_R=Dist;
         //s1.update();
         //s2.update();
-       MOTOR_L_PWM=update_Motor(mot_l_val,'l')/1.5;
-       MOTOR_R_PWM=update_Motor(mot_r_val,'r')/1.5;
-      //sPwm_L=s1.get_val();
-       //sPwm_R=s2.get_val();
+       MOTOR_L_PWM=update_Motor(mot_l_val,'l');
+       MOTOR_R_PWM=update_Motor(mot_r_val,'r');
+      sPwm_L=MOTOR_L_PWM;
+       sPwm_R=MOTOR_R_PWM;
 
 }
 void motionCtrl::MAJTask()
 {
-    Liste.erase(Liste.begin(),Liste.begin());
+    Liste.erase(Liste.begin());
     if(Liste.size()==0)
     {
         Posy=8888;
@@ -390,14 +390,23 @@ void motionCtrl::MAJTask()
     }
     else
     {
-        x_goal=Liste.front().x;
-        y_goal=Liste.front().y;
-        angl_goal=Liste.front().angle;
+        if(Liste.front().type=="MOVE_POS")
+        {
+           x_goal=Liste.front().x;
+            y_goal=Liste.front().y;
+            angl_goal=Liste.front().angle;
+        }
+        else
+        {
+            x_goal=Posx;
+            y_goal=Posy;
+             angl_goal=Liste.front().angle;
+        }
     }
 }
  void motionCtrl::asserv()
  {
-    bool ret=false;
+    //bool ret=false;
     //Posx++;
  	this->fetchEncodersValue();
  	this->update_Pos();
