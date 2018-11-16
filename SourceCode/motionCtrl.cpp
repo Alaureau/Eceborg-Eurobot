@@ -64,8 +64,8 @@ motionCtrl::motionCtrl(float m_Posx,float m_Posy,float m_Angle,std::vector<Task>
         enc_r_val=0;
         //enc_l_last=0;
         //enc_r_last=0;
-        sPwm_L=0.0;
-        sPwm_R=0.0;
+        sPwm_L=0;
+        sPwm_R=0;
         last_Pwm_l=0.0;
         last_Pwm_r=0.0;
         Dist_last=0.0;
@@ -95,6 +95,7 @@ void motionCtrl::DefineDistCap()
      float Xerr=x_goal-Posx;
     float Yerr=y_goal-Posy;
     float Aerr=angl_goal-Angle;
+
     if(Liste.front().type=="MOVE_POS")
     {
         Dist=sqrt((Xerr*Xerr)+(Yerr*Yerr));
@@ -112,6 +113,33 @@ void motionCtrl::DefineDistCap()
                 isFinished = true;
             }
     }
+     if(Liste.front().type=="TURN_N_GO")
+    {
+        if(turning)
+        {
+            Cap = std_rad_angle(Aerr);
+            Dist = 0;  //Dist=sqrt((Xerr*Xerr)+(Yerr*Yerr)) * cos(atan2(Yerr,Xerr)-Angle);
+            if ((ABS(Cap) < MC_TARGET_TOLERANCE_ANGLE) )//&& (ABS(cur_speed_ang) < MC_TARGET_TOLERANCE_ANG_SPEED))
+                turning=false;
+        }
+        else
+        {
+            Dist=sqrt((Xerr*Xerr)+(Yerr*Yerr));
+            Cap= (atan2(Yerr,Xerr)-Angle);
+            Cap=recalib(Cap);
+            if(Cap>(M_PI/2)|| Cap<(-M_PI/2))
+            {
+                Dist=-Dist;
+                Cap+=M_PI;
+                Cap=recalib(Cap);
+            }
+            if ((ABS(Dist) < MC_TARGET_TOLERANCE_DIST) )//&& (ABS(cur_speed) < MC_TARGET_TOLERANCE_SPEED))
+                {
+                    
+                    isFinished = true;
+                }
+        }
+    }
     else if(Liste.front().type=="MOVE_ANG")
     {
         Cap = std_rad_angle(Aerr);
@@ -119,6 +147,12 @@ void motionCtrl::DefineDistCap()
         if ((ABS(Cap) < MC_TARGET_TOLERANCE_ANGLE) )//&& (ABS(cur_speed_ang) < MC_TARGET_TOLERANCE_ANG_SPEED))
                 isFinished=true;
 
+    }
+    else if(Liste.front().type=="WAIT")
+    {
+        Cap=0;
+        Dist=0;
+        isFinished = true;
     }
     
 
@@ -157,7 +191,7 @@ void motionCtrl::update_Pos()
 
 
 	S_left=(perim_wheel/reso_encoder)*(enc_l_val- enc_l_last);
-	S_right=((perim_wheel*coef_corr)/reso_encoder)*(enc_r_val- enc_r_last);
+	S_right=((perim_wheel)/reso_encoder)*(enc_r_val- enc_r_last);
 	Speed=(S_right+S_left)/2;
 	Speed_angle=((S_left-S_right)/entraxe);
 	cur_angle=(Speed_angle+Angle);
@@ -333,10 +367,11 @@ void motionCtrl::Compute_PID()
 
         pid_angle_.setProcessValue(pid_angle_goal_);
         pid_angle_out_ = pid_angle_.compute();
-        sPwm_L=pid_dist_out_;
-        sPwm_R=pid_angle_out_;
+        //sPwm_L=pid_dist_out_;
+        //sPwm_R=pid_angle_out_;
     }
-        
+             sPwm_L=pid_dist_out_;
+        sPwm_R=pid_angle_out_;
     //pid_angle_out_=Ang_Consigne();
     //pid_dist_out_=Dist_Consigne();
     Dist_last=Dist;
@@ -347,7 +382,7 @@ void motionCtrl::Compute_PID()
     float TDist= (PID_DIST_D*(Dist-Dist_last))+((Dist_last+Dist)*PID_DIST_I)+(Dist*PID_DIST_P);
     float TAngle= (PID_ANGLE_D*(Cap-Cap_last))+((Cap_last+Cap)*PID_ANGLE_I)+(Cap*PID_ANGLE_P);
    
-    Dist_last=TDist;
+    Dist_last=coef_corrTDist;
     Cap_last=TAngle;
     */
 
@@ -375,9 +410,10 @@ void motionCtrl::Compute_PID()
         //s1.update();
         //s2.update();
        MOTOR_L_PWM=update_Motor(mot_l_val,'l')/1.5;
-       MOTOR_R_PWM=update_Motor(mot_r_val,'r')/1.5;
-      sPwm_L=mot_l_val;
-       sPwm_R=mot_r_val;
+       MOTOR_R_PWM=update_Motor(mot_r_val,'r')/1.5*coef_corr;
+       sPwm_L=MOTOR_L_PWM;
+       sPwm_R=MOTOR_R_PWM/coef_corr;
+       affiche=Liste.front().type;
 
 }
 void motionCtrl::MAJTask()
@@ -387,31 +423,77 @@ void motionCtrl::MAJTask()
     {
         Posy=8888;
         asserv_ticker_->detach();
+        MOTOR_L_PWM=0;
+        MOTOR_R_PWM=0;
+
     }
-    else
+    else if(Liste.front().type=="MOVE_POS")
     {
-        if(Liste.front().type=="MOVE_POS")
+       x_goal=Liste.front().x;
+       y_goal=Liste.front().y;
+       angl_goal=Liste.front().angle;
+    }
+    /*else if(Liste.front().type=="TURN_N_GO")
+    {
+        if(turning)
         {
-           x_goal=Liste.front().x;
-            y_goal=Liste.front().y;
-            angl_goal=Liste.front().angle;
+             Cap = std_rad_angle(Aerr);
+             Dist = Dist=sqrt((Xerr*Xerr)+(Yerr*Yerr)) * cos(atan2(Yerr,Xerr)-Angle);
+             if ((ABS(Cap) < MC_TARGET_TOLERANCE_ANGLE) )//&& (ABS(cur_speed_ang) < MC_TARGET_TOLERANCE_ANG_SPEED))
+                isFinished=true;
+
+
         }
-        else
+
+    }*/
+        else if(Liste.front().type=="MOVE_ANG")
         {
             x_goal=Posx;
             y_goal=Posy;
              angl_goal=Liste.front().angle;
         }
     }
+
+
+void motionCtrl::sharp()
+{
+       s2.update();
+       s1.update();
+        //sPwm_R=s2.get_val();
+       //sPwm_L=s1.get_val();
+       if(Cap>(-M_PI/4)&&Cap<(M_PI/4))
+       {
+            if((s2.get_val()<110 && Liste.front().type=="MOVE_POS") || (s2.get_val()<110 && Liste.front().type=="TURN_N_GO" && turning==false))
+        {
+            x_goal=100*cos(Angle+(-M_PI/2));
+            y_goal=100*sin(Angle+(-M_PI/2));
+            angl_goal=Angle+(-M_PI/2);
+            Task t1("TURN_N_GO",x_goal,y_goal,angl_goal);
+            turning=true;
+            Liste.insert(Liste.begin(),t1);
+          }
+
+       }
+       
+     
+       //   isFinished=true;
 }
  void motionCtrl::asserv()
  {
-    bool ret=false;
+    //bool ret=false;
     //Posx++;
  	this->fetchEncodersValue();
  	this->update_Pos();
     this->updateTask();
     this->Compute_PID();
+    this->sharp();
+    sPwm_R=s2.get_val();
+    if(turning)
+    {
+        affiche="toto";
+
+    }
+
      if (isFinished)
             {   
                 this->MAJTask();

@@ -9,6 +9,7 @@
 #include <vector>
 #include "Task.h"
 #include "SharpSensor.h"
+#include "string.h"
 #define ENC_RADIUS          20.0                    // one encoder radius
 #define ENC_PERIMETER       (2*M_PI*ENC_RADIUS)     // one encoder perimeter
 #define ENC_POS_RADIUS      87                      // distance from one encoder to the center of the robot
@@ -18,14 +19,17 @@
 #define TICKS_TO_MM_L(val)  ((val)/TICKS_PER_MM_L)
 #define MM_TO_TICKS_R(val)  ((val)*TICKS_PER_MM_R)
 #define TICKS_TO_MM_R(val)  ((val)/TICKS_PER_MM_R)
-#define ENC_L_DATA1 D11 
+#define ENC_L_DATA1 D11
+
+
+
 #define ENC_L_DATA2 D3
 #define ENC_R_DATA1 A0
 #define ENC_R_DATA2 A1
 #define min_diff_enc 0.5
 #define perim_wheel 128.74
 #define reso_encoder 2050.0
-#define coef_corr 1
+#define coef_corr 1.290322581
 #define entraxe 310.0
 #define MAX_DECEL 2000
 #define MAX_V 250
@@ -60,6 +64,7 @@ public:
 	void update_Pos();
 	void MAJTask();
 	void Compute_PID();
+	void sharp();
 	float update_Motor(float sPwm, char cote);
 	void fetchEncodersValue();
 	float  Dist_Consigne();
@@ -68,6 +73,7 @@ public:
 	float  Ang_Consigne();
 	 void pidDistSetGoal(float goal);
     void pidAngleSetGoal(float goal);
+    string affiche;
 	int32_t enc_l_val,enc_l_last,enc_r_val,enc_r_last;
 
 	SharpSensor s1,s2;
@@ -82,7 +88,7 @@ public:
 
 
 float x_goal,y_goal;
-bool isFinished;
+bool isFinished,detectleft,detectright,detectback,detectfront,turning;
 	//Motor Motor_l, Motor_r;
 	float last_Pwm_l,last_Pwm_r;
 	float sPwm_L, sPwm_R;
