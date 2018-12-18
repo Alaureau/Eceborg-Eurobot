@@ -3,7 +3,7 @@
 #include "QEI.h"
 #include "motionCtrl.h"
 #include <vector>
-//#define SHARP3 A4
+
 int main(){
 	//SharpSensor s3=new SharpSensor(SHARP2);
 	Serial pc(SERIAL_TX,SERIAL_RX,115200);
@@ -27,7 +27,7 @@ while(1)
 {
 	//test.s1.update();
 	//a=test.s1.get_val();
-	pc.printf("x=%f  y=%f angle=%f Pwml= %f Pwmr= %f\n Type: %s\n",test.Posx,test.Posy,test.Angle,test.sPwm_L,test.sPwm_R,test.affiche);
+	pc.printf("x=%f  y=%f angle=%f Pwml= %f Pwmr= %f\n Type:\n",test.Posx,test.Posy,test.Angle,test.sPwm_L,test.sPwm_R);
 	wait(1);
 }
 

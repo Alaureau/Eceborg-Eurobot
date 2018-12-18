@@ -5,7 +5,7 @@
 #include "common/utils.h"
 #include "config.h"
 
-#include "Motor.h"
+#include "motor.h"
 
 
 Motor::Motor(PinName pwm_pin, PinName dir_pin, bool forward_dir) : pwm_(pwm_pin), dir_(dir_pin) {

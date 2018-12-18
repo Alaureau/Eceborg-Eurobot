@@ -10,6 +10,7 @@
 #include "Task.h"
 #include "SharpSensor.h"
 #include "string.h"
+
 #define ENC_RADIUS          20.0                    // one encoder radius
 #define ENC_PERIMETER       (2*M_PI*ENC_RADIUS)     // one encoder perimeter
 #define ENC_POS_RADIUS      87                      // distance from one encoder to the center of the robot
@@ -71,7 +72,7 @@ public:
 	void updateTask();
 	void DefineDistCap();
 	float  Ang_Consigne();
-	 void pidDistSetGoal(float goal);
+	void pidDistSetGoal(float goal);
     void pidAngleSetGoal(float goal);
     string affiche;
 	int32_t enc_l_val,enc_l_last,enc_r_val,enc_r_last;
@@ -89,7 +90,6 @@ public:
 
 float x_goal,y_goal;
 bool isFinished,detectleft,detectright,detectback,detectfront,turning;
-	//Motor Motor_l, Motor_r;
 	float last_Pwm_l,last_Pwm_r;
 	float sPwm_L, sPwm_R;
 	float Dist_last,angl_goal;
@@ -97,11 +97,11 @@ bool isFinished,detectleft,detectright,detectback,detectfront,turning;
 	float Cap,Cap_last;
 	float Posx,Posy,Angle;
 	float Speed;
+	int cptsharp=0;//nb of detections
 	Timer timer;
 	Ticker *asserv_ticker_;
 	QEI enc_l;
 	QEI enc_r;
-	//Motor Motor_l, Motor_r;
 	
 
 };
