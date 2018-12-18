@@ -66,6 +66,7 @@ public:
 	void MAJTask();
 	void Compute_PID();
 	void sharp();
+	void consigne();
 	float update_Motor(float sPwm, char cote);
 	void fetchEncodersValue();
 	float  Dist_Consigne();
@@ -74,7 +75,7 @@ public:
 	float  Ang_Consigne();
 	void pidDistSetGoal(float goal);
     void pidAngleSetGoal(float goal);
-    string affiche;
+    float affiche;
 	int32_t enc_l_val,enc_l_last,enc_r_val,enc_r_last;
 
 	SharpSensor s1,s2;

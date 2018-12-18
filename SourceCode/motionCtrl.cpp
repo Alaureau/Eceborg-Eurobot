@@ -356,8 +356,10 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
             }
             sPwm_L=pid_dist_out_;
             sPwm_R=pid_angle_out_;
-    //pid_angle_out_=Ang_Consigne();
-    //pid_dist_out_=Dist_Consigne();
+            //pid_angle_out_=Ang_Consigne();
+            float consigne=Dist_Consigne();
+            affiche=consigne;
+            pid_dist_out_ = map(ABS(pid_dist_out_), 0, consigne, PWM_MIN, PWM_MAX);
             Dist_last=Dist;
             Cap_last=Cap;
      //sPwm_L=pid_angle_out_;
@@ -397,7 +399,7 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
             MOTOR_R_PWM=update_Motor(mot_r_val,'r')/1.5*coef_corr;
             sPwm_L=MOTOR_L_PWM;
             sPwm_R=MOTOR_R_PWM/coef_corr;
-            affiche=Liste.front().type;
+            //affiche=Liste.front().type;
 
         }
         void motionCtrl::MAJTask()
@@ -471,6 +473,14 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
 
        //   isFinished=true;
 }
+
+void motionCtrl::consigne()
+{
+
+}
+
+
+
 void motionCtrl::asserv()
 {
     //bool ret=false;
@@ -479,13 +489,17 @@ void motionCtrl::asserv()
   this->update_Pos();
   this->updateTask();
   this->Compute_PID();
+
+
+
+
   this->sharp();
   //sPwm_R=s2.get_val();
-  if(turning)
+  /*if(turning)
   {
     affiche="toto";
 
-}
+}*/
 
 if (isFinished)
 {   
