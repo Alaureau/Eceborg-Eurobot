@@ -38,6 +38,7 @@
 #define MAX_DECEL_A 4
 #define MAX_V_A 1
 #define MAX_A_A 3
+#define MAX_VITESSE 0.6
 
 #define PID_DIST_MAX_OUPUT  0.8
 #define PID_ANGLE_MAX_OUPUT 1 
@@ -77,7 +78,7 @@ public:
     void pidAngleSetGoal(float goal);
     float affiche;
 	int32_t enc_l_val,enc_l_last,enc_r_val,enc_r_last;
-
+	int vitesse_consigne;
 	SharpSensor s1,s2;
 	
 	std::vector<Task> Liste;

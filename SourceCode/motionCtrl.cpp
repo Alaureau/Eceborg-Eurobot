@@ -234,6 +234,35 @@ float constrain(float val, float min, float max)
     else if(val >max)return max;
     else return val;
 }
+
+
+
+void motionCtrl::consigne()
+        {
+        float VRobot=((Dist_last-Dist)/ASSERV_DELAY);
+        //distance_restante = position_consigne - position_courante; 
+        //if (abs(distance_restante) < 1000) flag_asservissement_position_fini=1; 
+        //if (!flag_asservissement_position_fini)  
+        //{ 
+        float vitesse_consigne=0;
+        if (Dist > 0) vitesse_consigne=MAX_VITESSE; 
+        if (Dist < 0) vitesse_consigne=-MAX_VITESSE; 
+        if (abs(VRobot*(MAX_VITESSE/(2*ASSERV_DELAY)))>abs(distance_restante/VRobot)) vitesse_consigne=0; 
+        //} 
+        //else  vitesse_consigne=0; 
+        }
+
+
+
+float motionCtrl::appConsigne(float pwm)
+{
+
+    float VRobot=((Dist_last-Dist)/ASSERV_DELAY);
+    if ( VRobot < vitesse_consigne ) pwm+=PWM_STEP; 
+    if ( VRobot > vitesse_consigne ) pwm-=PWM_STEP; 
+    affiche=vitesse_consigne;
+    return pwm;
+}
 float  motionCtrl::update_Motor(float sPwm, char cote)
 {
 
@@ -251,14 +280,16 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
 
             sPwm = constrain(sPwm, -1, 1);
 
-            // step the raw value
-            if (abs(sPwm - current) > PWM_STEP)
-            {
-                if (sPwm > current)
-                    sPwm = current + PWM_STEP;
-                else
-                    sPwm = current - PWM_STEP;
-            }  
+              // step the raw value
+                /*if (abs(sPwm - current) > PWM_STEP)
+                {
+                    if (sPwm > current)
+                        sPwm = current + PWM_STEP;
+                    else
+                        sPwm = current - PWM_STEP;
+                }  */
+                
+                sPwm=this->appConsigne(sPwm);
 
             last_Pwm_r= sPwm;
             sPwm = SIGN(sPwm) * map(ABS(sPwm), 0, 1, PWM_MIN, PWM_MAX);
@@ -290,14 +321,14 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
                 sPwm = constrain(sPwm, -1, 1);
 
             // step the raw value
-                if (abs(sPwm - current) > PWM_STEP)
+                /*if (abs(sPwm - current) > PWM_STEP)
                 {
                     if (sPwm > current)
                         sPwm = current + PWM_STEP;
                     else
                         sPwm = current - PWM_STEP;
-                }  
-
+                }  */
+                sPwm=this->appConsigne(sPwm);
                 last_Pwm_l= sPwm;
                 sPwm = SIGN(sPwm) * map(ABS(sPwm), 0, 1, PWM_MIN, PWM_MAX);
                 //sPwm = SIGN(sPwm) * map(ABS(sPwm), 0, 1, PWM_MIN, PWM_MAX);
@@ -317,6 +348,9 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
             return sPwm;
         }
 
+
+
+        
         void motionCtrl::Compute_PID()
         {
     /*float Xerr=x_goal-Posx;
@@ -357,11 +391,10 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
             sPwm_L=pid_dist_out_;
             sPwm_R=pid_angle_out_;
             //pid_angle_out_=Ang_Consigne();
-            float consigne=Dist_Consigne();
+            /*float consigne=Dist_Consigne();
             affiche=consigne;
-            pid_dist_out_ = map(ABS(pid_dist_out_), 0, consigne, PWM_MIN, PWM_MAX);
-            Dist_last=Dist;
-            Cap_last=Cap;
+            pid_dist_out_ = map(ABS(pid_dist_out_), 0, consigne, PWM_MIN, PWM_MAX);*/
+            
      //sPwm_L=pid_angle_out_;
        //sPwm_R=pid_dist_out_;
     /*
@@ -395,11 +428,14 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
        //sPwm_R=Dist;
         //s1.update();
         //s2.update();
+            this->consigne();
             MOTOR_L_PWM=update_Motor(mot_l_val,'l')/1.5;
             MOTOR_R_PWM=update_Motor(mot_r_val,'r')/1.5*coef_corr;
             sPwm_L=MOTOR_L_PWM;
             sPwm_R=MOTOR_R_PWM/coef_corr;
             //affiche=Liste.front().type;
+            Dist_last=Dist;
+            Cap_last=Cap;
 
         }
         void motionCtrl::MAJTask()
@@ -474,10 +510,6 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
        //   isFinished=true;
 }
 
-void motionCtrl::consigne()
-{
-
-}
 
 
 
