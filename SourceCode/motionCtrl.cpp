@@ -1,4 +1,3 @@
-
 #include "motionCtrl.h"
 #include "config.h"
 #include "QEI.h"
@@ -166,21 +165,21 @@ void motionCtrl::fetchEncodersValue() {
 
 void motionCtrl::update_Pos()
 {
-	float cur_x=0.0,cur_y=0.0,cur_angle=0.0;
-	float last_x=0.0,last_y=0.0,last_angla=0.0;
-	float Speed=0.0;
-	float Speed_angle=0.0;
-	float S_left=0.0;
-	float S_right=0.0;
+    float cur_x=0.0,cur_y=0.0,cur_angle=0.0;
+    float last_x=0.0,last_y=0.0,last_angla=0.0;
+    float Speed=0.0;
+    float Speed_angle=0.0;
+    float S_left=0.0;
+    float S_right=0.0;
 
 
-	S_left=(perim_wheel/reso_encoder)*(enc_l_val- enc_l_last);
-	S_right=((perim_wheel)/reso_encoder)*(enc_r_val- enc_r_last);
-	Speed=(S_right+S_left)/2;
-	Speed_angle=((S_left-S_right)/entraxe);
-	cur_angle=(Speed_angle+Angle);
-	cur_x=Speed*cosf(cur_angle)+Posx;
-	cur_y=Speed*sinf(cur_angle)+Posy;
+    S_left=(perim_wheel/reso_encoder)*(enc_l_val- enc_l_last);
+    S_right=((perim_wheel)/reso_encoder)*(enc_r_val- enc_r_last);
+    Speed=(S_right+S_left)/2;
+    Speed_angle=((S_left-S_right)/entraxe);
+    cur_angle=(Speed_angle+Angle);
+    cur_x=Speed*cosf(cur_angle)+Posx;
+    cur_y=Speed*sinf(cur_angle)+Posy;
     Posx=cur_x;
     Posy=cur_y;
     Angle=cur_angle;
@@ -247,7 +246,7 @@ void motionCtrl::consigne()
         float vitesse_consigne=0;
         if (Dist > 0) vitesse_consigne=MAX_VITESSE; 
         if (Dist < 0) vitesse_consigne=-MAX_VITESSE; 
-        if (abs(VRobot*(MAX_VITESSE/(2*ASSERV_DELAY)))>abs(distance_restante/VRobot)) vitesse_consigne=0; 
+        if (abs(VRobot*(MAX_VITESSE/(2*ASSERV_DELAY)))>abs(Dist/VRobot)) vitesse_consigne=0; 
         //} 
         //else  vitesse_consigne=0; 
         }
@@ -357,12 +356,8 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
     float Yerr=y_goal-Posy;
     float Aerr=angl_goal-Angle;
     Dist=sqrt((Xerr*Xerr)+(Yerr*Yerr));
-
     Cap= (atan2(Yerr,Xerr)-Angle);
-
     
-
-
     Cap=recalib(Cap);
     if(Cap>(M_PI/2)|| Cap<(-M_PI/2))
     {
@@ -463,10 +458,7 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
              Dist = Dist=sqrt((Xerr*Xerr)+(Yerr*Yerr)) * cos(atan2(Yerr,Xerr)-Angle);
              if ((ABS(Cap) < MC_TARGET_TOLERANCE_ANGLE) )//&& (ABS(cur_speed_ang) < MC_TARGET_TOLERANCE_ANG_SPEED))
                 isFinished=true;
-
-
         }
-
     }*/
          else if(Liste.front().type=="MOVE_ANG")
          {
@@ -487,21 +479,21 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
      {
         if((s2.get_val()<120 && Liste.front().type=="MOVE_POS") || (s2.get_val()<120 && Liste.front().type=="TURN_N_GO" && turning==false))
         {
-        	cptsharp++;
-        	if(cptsharp>3)
-        	{
-        		x_goal=100*cos(Angle+(-M_PI/2));
-            	y_goal=100*sin(Angle+(-M_PI/2));
-            	angl_goal=Angle+(-M_PI/2);
-            	Task t1("TURN_N_GO",x_goal,y_goal,angl_goal);
-            	turning=true;
-            	Liste.insert(Liste.begin(),t1);
-            	cptsharp=0;
-        	}
+            cptsharp++;
+            if(cptsharp>3)
+            {
+                x_goal=100*cos(Angle+(-M_PI/2));
+                y_goal=100*sin(Angle+(-M_PI/2));
+                angl_goal=Angle+(-M_PI/2);
+                Task t1("TURN_N_GO",x_goal,y_goal,angl_goal);
+                turning=true;
+                Liste.insert(Liste.begin(),t1);
+                cptsharp=0;
+            }
         }
         else
         {
-        	cptsharp=0;
+            cptsharp=0;
         }
 
     }
@@ -530,7 +522,6 @@ void motionCtrl::asserv()
   /*if(turning)
   {
     affiche="toto";
-
 }*/
 
 if (isFinished)

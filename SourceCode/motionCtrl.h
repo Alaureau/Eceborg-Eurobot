@@ -74,6 +74,7 @@ public:
 	void updateTask();
 	void DefineDistCap();
 	float  Ang_Consigne();
+	float appConsigne(float pwm);
 	void pidDistSetGoal(float goal);
     void pidAngleSetGoal(float goal);
     float affiche;
