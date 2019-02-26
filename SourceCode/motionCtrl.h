@@ -42,8 +42,8 @@
 
 #define PID_DIST_MAX_OUPUT  0.8
 #define PID_ANGLE_MAX_OUPUT 1 
-#define MC_TARGET_TOLERANCE_DIST 15
-#define MC_TARGET_TOLERANCE_ANGLE 0.05
+#define MC_TARGET_TOLERANCE_DIST 5
+#define MC_TARGET_TOLERANCE_ANGLE 0.005
 // PID settings
 
 #define PID_DIST_P          6.0
@@ -79,9 +79,10 @@ public:
     void pidAngleSetGoal(float goal);
     float affiche;
 	int32_t enc_l_val,enc_l_last,enc_r_val,enc_r_last;
-	int vitesse_consigne;
+	float vitesse_consigne;
 	SharpSensor s1,s2;
 	
+	void addtask(Task t);
 	std::vector<Task> Liste;
 	PID pid_dist_, pid_angle_;
        // tmp variable used as a working var

@@ -3,6 +3,7 @@
 #include "QEI.h"
 #include "pinOut.h"
 #include "utils.h"
+#include <time.h>
 
 
 motionCtrl::motionCtrl(float m_Posx,float m_Posy,float m_Angle,std::vector<Task> m_Liste) :
@@ -81,28 +82,28 @@ void motionCtrl::DefineDistCap()
 
    if(Liste.front().type=="MOVE_POS")
    {
-    Dist=sqrt((Xerr*Xerr)+(Yerr*Yerr));
-    Cap= (atan2(Yerr,Xerr)-Angle);
-    Cap=recalib(Cap);
-    if(Cap>(M_PI/2)|| Cap<(-M_PI/2))
+    this->Dist=sqrt((Xerr*Xerr)+(Yerr*Yerr));
+    this->Cap= (atan2(Yerr,Xerr)-Angle);
+    this->Cap=recalib(this->Cap);
+    if(this->Cap>(M_PI/2)|| this->Cap<(-M_PI/2))
     {
-        Dist=-Dist;
-        Cap+=M_PI;
-        Cap=recalib(Cap);
+        this->Dist=-this->Dist;
+        this->Cap+=M_PI;
+        this->Cap=recalib(this->Cap);
     }
-        if ((ABS(Dist) < MC_TARGET_TOLERANCE_DIST) )//&& (ABS(cur_speed) < MC_TARGET_TOLERANCE_SPEED))
+        if ((ABS(this->Dist) < MC_TARGET_TOLERANCE_DIST) )//&& (ABS(cur_speed) < MC_TARGET_TOLERANCE_SPEED))
         {
 
-            isFinished = true;
+            this->isFinished = true;
         }
     }
     if(Liste.front().type=="TURN_N_GO")
     {
         if(turning)
         {
-            Cap = std_rad_angle(Aerr);
+            this->Cap = std_rad_angle(Aerr);
             Dist = 0;  //Dist=sqrt((Xerr*Xerr)+(Yerr*Yerr)) * cos(atan2(Yerr,Xerr)-Angle);
-            if ((ABS(Cap) < MC_TARGET_TOLERANCE_ANGLE) )//&& (ABS(cur_speed_ang) < MC_TARGET_TOLERANCE_ANG_SPEED))
+            if ((ABS(this->Cap) < MC_TARGET_TOLERANCE_ANGLE) )//&& (ABS(cur_speed_ang) < MC_TARGET_TOLERANCE_ANG_SPEED))
                 turning=false;
         }
         else
@@ -127,7 +128,7 @@ void motionCtrl::DefineDistCap()
     {
         Cap = std_rad_angle(Aerr);
         Dist = Dist=sqrt((Xerr*Xerr)+(Yerr*Yerr)) * cos(atan2(Yerr,Xerr)-Angle);
-        if ((ABS(Cap) < MC_TARGET_TOLERANCE_ANGLE) )//&& (ABS(cur_speed_ang) < MC_TARGET_TOLERANCE_ANG_SPEED))
+        if ((ABS(Cap) < MC_TARGET_TOLERANCE_ANGLE) && (ABS(this->Dist) < MC_TARGET_TOLERANCE_DIST) )//&& (ABS(cur_speed_ang) < MC_TARGET_TOLERANCE_ANG_SPEED))
             isFinished=true;
 
     }
@@ -136,6 +137,7 @@ void motionCtrl::DefineDistCap()
         Cap=0;
         Dist=0;
         isFinished = true;
+
     }
     
 
@@ -243,10 +245,14 @@ void motionCtrl::consigne()
         //if (abs(distance_restante) < 1000) flag_asservissement_position_fini=1; 
         //if (!flag_asservissement_position_fini)  
         //{ 
-        float vitesse_consigne=0;
-        if (Dist > 0) vitesse_consigne=MAX_VITESSE; 
-        if (Dist < 0) vitesse_consigne=-MAX_VITESSE; 
-        if (abs(VRobot*(MAX_VITESSE/(2*ASSERV_DELAY)))>abs(Dist/VRobot)) vitesse_consigne=0; 
+        //float vitesse_consigne=0;
+        if (this->Dist > 0)
+            {
+                this->vitesse_consigne=MAX_VITESSE;
+            }
+        else if (this->Dist < 0) this->vitesse_consigne=-MAX_VITESSE; 
+        else if (abs(VRobot*(MAX_VITESSE/(2*ASSERV_DELAY)))>abs(this->Dist/VRobot)) this->vitesse_consigne=1; 
+        else this->vitesse_consigne=2;
         //} 
         //else  vitesse_consigne=0; 
         }
@@ -268,7 +274,7 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
     if(cote=='r')
     {
         float last_sPwm_= last_Pwm_r;
-        if (abs(sPwm) < PWM_IS_ALMOST_ZERO)
+        if (abs(sPwm) < 0.05)//PWM_IS_ALMOST_ZERO
         {
             sPwm = 0.0;
             last_sPwm_ = 0.0;
@@ -288,7 +294,7 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
                         sPwm = current - PWM_STEP;
                 }  */
                 
-                sPwm=this->appConsigne(sPwm);
+            sPwm=this->appConsigne(sPwm);
 
             last_Pwm_r= sPwm;
             sPwm = SIGN(sPwm) * map(ABS(sPwm), 0, 1, PWM_MIN, PWM_MAX);
@@ -308,7 +314,7 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
         else 
         {
             float last_sPwm_= last_Pwm_l;
-            if (abs(sPwm) < PWM_IS_ALMOST_ZERO)
+            if (abs(sPwm) < 0.05)//PWM_IS_ALMOST_ZERO
             {
                 sPwm = 0.0;
                 last_sPwm_ = 0.0;
@@ -438,7 +444,7 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
             Liste.erase(Liste.begin());
             if(Liste.size()==0)
             {
-                Posy=8888;
+                //Posy=8888;
                 asserv_ticker_->detach();
                 MOTOR_L_PWM=0;
                 MOTOR_R_PWM=0;
@@ -485,8 +491,8 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
                 x_goal=100*cos(Angle+(-M_PI/2));
                 y_goal=100*sin(Angle+(-M_PI/2));
                 angl_goal=Angle+(-M_PI/2);
-                Task t1("TURN_N_GO",x_goal,y_goal,angl_goal);
-                turning=true;
+                Task t1("WAIT",0.0,0.0,0.0);
+                //turning=true;
                 Liste.insert(Liste.begin(),t1);
                 cptsharp=0;
             }
@@ -500,6 +506,13 @@ float  motionCtrl::update_Motor(float sPwm, char cote)
 
 
        //   isFinished=true;
+}
+
+void motionCtrl::addtask(Task t)
+{
+    Task s2("WAIT",0.0,0.0,0.0);
+    this->Liste.push_back(s2);
+    this->Liste.push_back(t);
 }
 
 
@@ -517,7 +530,7 @@ void motionCtrl::asserv()
 
 
 
-  this->sharp();
+  //this->sharp();
   //sPwm_R=s2.get_val();
   /*if(turning)
   {
@@ -529,5 +542,4 @@ if (isFinished)
     this->MAJTask();
     isFinished=false;
 }
-
 }
